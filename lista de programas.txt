@@ -1,0 +1,12 @@
+IBM DB2 Connect – v11.5.8 
+Sun Java Development Kit – v6.18 – Instalação Completa 
+Microsoft .NET Framework Developer Pack – v4.8 
+Microsoft ANCM: 
+.NET Runtime + SDK – IISExpress 10 – v8.0.1 
+.NET 6.0.1 Runtime – IIS Express 10 – Instalação 
+.NET 7.0.10 Runtime – IIS Express 10 – Instalação 
+
+Microsoft Visual Studio 2017 Express Desktop – v15.9.7 
+Microsoft Visual Studio Code – v1.81.1 com extensões C# e SVN 
+Oracle Java Runtime Environment – versão 8 Update 111 – Assinatura de Código 32 bits 
+Oracle Client – v12.1.0.20 

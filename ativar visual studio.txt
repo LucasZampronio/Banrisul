@@ -1,0 +1,21 @@
+Licenciar o Microsoft Visual Studio 
+
+Após a instalação, você pode avaliar o Visual Studio Express por 30 dias. Para continuar usando o Visual Studio após esse período, siga os passos abaixo para desbloqueá-lo com uma conta de assinatura online ou uma chave de produto. 
+
+Entre em Contato com o Help Desk 
+
+Ligue para (51) 3215-2000. 
+
+Selecione as opções 2 e 3 no menu de atendimento. 
+
+Registre o Produto 
+
+Inicie o Visual Studio no seu computador. 
+
+Clique em Help no menu superior. 
+
+Selecione Register Product. 
+
+Adicione a Licença 
+
+O Help Desk adicionará a licença apropriada para você. 
