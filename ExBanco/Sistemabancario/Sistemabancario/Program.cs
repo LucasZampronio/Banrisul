@@ -19,13 +19,21 @@ namespace Sistemabancario
           
                 Menu();
 
+                Banco banco = SelecionaBanco();
+                if (banco.Nome == ""){
+                    Console.WriteLine("Banco não encontado");
+                    
+                    }
+ 
+
                 string opcao = Console.ReadLine().ToLower();
 
                 switch (opcao)
                 {
                     case "1":
                         { 
-                        SelecionaBanco();
+                        banco.cadastroCliente();
+                        ;
                         break; 
                         }
                     case "2":
@@ -103,9 +111,11 @@ namespace Sistemabancario
 
         }
 
-        static void SelecionaBanco()
+        static Banco SelecionaBanco()
         {
             Console.Write("Digite o nome do banco que deseja selecionar");
+
+            Banco bancoVazio = new Banco(" ");
 
             foreach(Banco banco in lista_bancos)
             {
@@ -114,6 +124,20 @@ namespace Sistemabancario
             }
 
             string nome = Console.ReadLine();
+
+            foreach(Banco banco in lista_bancos)
+            {
+                if(nome.ToLower() == banco.Nome.ToLower())
+                {
+                    return banco;
+                }
+                else
+                {
+                    Console.WriteLine("Não há bancos com esse nome");
+                }
+            }
+
+            return bancoVazio;
 
         }
 
@@ -175,3 +199,4 @@ namespace Sistemabancario
 
     }
 }
+
