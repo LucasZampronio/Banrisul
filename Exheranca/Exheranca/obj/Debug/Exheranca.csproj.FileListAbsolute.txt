@@ -1,0 +1,7 @@
+C:\Users\E38357\source\repos\Exheranca\Exheranca\bin\Debug\Exheranca.exe.config
+C:\Users\E38357\source\repos\Exheranca\Exheranca\bin\Debug\Exheranca.exe
+C:\Users\E38357\source\repos\Exheranca\Exheranca\bin\Debug\Exheranca.pdb
+C:\Users\E38357\source\repos\Exheranca\Exheranca\obj\Debug\Exheranca.csprojAssemblyReference.cache
+C:\Users\E38357\source\repos\Exheranca\Exheranca\obj\Debug\Exheranca.csproj.CoreCompileInputs.cache
+C:\Users\E38357\source\repos\Exheranca\Exheranca\obj\Debug\Exheranca.exe
+C:\Users\E38357\source\repos\Exheranca\Exheranca\obj\Debug\Exheranca.pdb
