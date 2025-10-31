@@ -1,7 +1,0 @@
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\bin\Debug\SitemaBancarioStatic.exe.config
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\bin\Debug\SitemaBancarioStatic.exe
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\bin\Debug\SitemaBancarioStatic.pdb
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\obj\Debug\SitemaBancarioStatic.csprojAssemblyReference.cache
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\obj\Debug\SitemaBancarioStatic.csproj.CoreCompileInputs.cache
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\obj\Debug\SitemaBancarioStatic.exe
-C:\Users\E38357\source\repos\SitemaBancarioStatic\SitemaBancarioStatic\obj\Debug\SitemaBancarioStatic.pdb
