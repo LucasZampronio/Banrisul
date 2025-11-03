@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "MYBSUoK3cWCDytc8rCkcaYBDa1V+H1bTcOZv8wjqzNpQYqoirtMtFTD2uusrDXg3ZpQGfbcxKmErEO2P8XGWuA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\E38357\\OneDrive - Banrisul S.A\\Documentos\\MinhaApi\\MinhaApi.csproj",
+  "expectedPackageFiles": [
+    "C:\\repositorios\\nuget\\pacotes\\microsoft.aspnetcore.openapi\\8.0.21\\microsoft.aspnetcore.openapi.8.0.21.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\microsoft.openapi\\1.6.14\\microsoft.openapi.1.6.14.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\swashbuckle.aspnetcore\\6.6.2\\swashbuckle.aspnetcore.6.6.2.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\swashbuckle.aspnetcore.swagger\\6.6.2\\swashbuckle.aspnetcore.swagger.6.6.2.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\swashbuckle.aspnetcore.swaggergen\\6.6.2\\swashbuckle.aspnetcore.swaggergen.6.6.2.nupkg.sha512",
+    "C:\\repositorios\\nuget\\pacotes\\swashbuckle.aspnetcore.swaggerui\\6.6.2\\swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512"
+  ],
+  "logs": []
+}
