@@ -1,7 +1,0 @@
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\bin\Debug\ExComposicao.exe.config
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\bin\Debug\ExComposicao.exe
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\bin\Debug\ExComposicao.pdb
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\obj\Debug\ExComposicao.csprojAssemblyReference.cache
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\obj\Debug\ExComposicao.csproj.CoreCompileInputs.cache
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\obj\Debug\ExComposicao.exe
-C:\Users\E38357\source\repos\ExComposicao\ExComposicao\obj\Debug\ExComposicao.pdb
