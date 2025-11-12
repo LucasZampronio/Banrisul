@@ -6,7 +6,7 @@ Praticar value types, reference types, structs, records, ref/out/in parameters e
 
 ---
 
-## ✏️ Exercício 1: Comparando Value vs Reference
+## ✏️ Exercício 1: Comparando Value vs References
 
 **Dificuldade**: ⭐ Iniciante
 
@@ -455,3 +455,4 @@ gerenciador.ExibirResumo();
 **Boa sorte! 💪**
 
 *Escolher o tipo certo (struct/class/record) é crucial para performance e design!*
+
