@@ -1,0 +1,7 @@
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\bin\Debug\Cliente.exe.config
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\bin\Debug\Cliente.exe
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\bin\Debug\Cliente.pdb
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\obj\Debug\Cliente.exe
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\obj\Debug\Cliente.pdb
+C:\Desenvhome\LABS\ClienteServidorBoilerplate\Cliente\obj\Debug\Cliente.csprojAssemblyReference.cache
