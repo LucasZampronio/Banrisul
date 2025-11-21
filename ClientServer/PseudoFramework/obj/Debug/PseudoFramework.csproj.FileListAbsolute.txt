@@ -1,0 +1,6 @@
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\bin\Debug\PseudoFramework.dll
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\bin\Debug\PseudoFramework.pdb
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\obj\Debug\PseudoFramework.csprojAssemblyReference.cache
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\obj\Debug\PseudoFramework.csproj.CoreCompileInputs.cache
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\obj\Debug\PseudoFramework.dll
+C:\Desenvhome\LABS\ClientServer\PseudoFramework\obj\Debug\PseudoFramework.pdb

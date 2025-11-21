@@ -1,0 +1,10 @@
+C:\Desenvhome\LABS\ClientServer\Cliente\bin\Debug\Cliente.exe.config
+C:\Desenvhome\LABS\ClientServer\Cliente\bin\Debug\Cliente.exe
+C:\Desenvhome\LABS\ClientServer\Cliente\bin\Debug\Cliente.pdb
+C:\Desenvhome\LABS\ClientServer\Cliente\bin\Debug\PseudoFramework.dll
+C:\Desenvhome\LABS\ClientServer\Cliente\bin\Debug\PseudoFramework.pdb
+C:\Desenvhome\LABS\ClientServer\Cliente\obj\Debug\Cliente.csprojAssemblyReference.cache
+C:\Desenvhome\LABS\ClientServer\Cliente\obj\Debug\Cliente.csproj.CoreCompileInputs.cache
+C:\Desenvhome\LABS\ClientServer\Cliente\obj\Debug\Cliente.csproj.CopyComplete
+C:\Desenvhome\LABS\ClientServer\Cliente\obj\Debug\Cliente.exe
+C:\Desenvhome\LABS\ClientServer\Cliente\obj\Debug\Cliente.pdb
