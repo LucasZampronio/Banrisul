@@ -3,11 +3,11 @@ using System.Reflection;
 using System.Runtime.InteropServices;
         
 [assembly: CLSCompliant(true)]
-[assembly: AssemblyTitle("Pxcqidxn")]
+[assembly: AssemblyTitle("Pxcqcaxn")]
 [assembly: AssemblyCompany("Banrisul")]
-[assembly: AssemblyProduct("Pxcqidxn")]
+[assembly: AssemblyProduct("Pxcqcaxn")]
 [assembly: AssemblyCopyright("Copyright © Banrisul 2025")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 [assembly: ComVisible(false)]
-[assembly: Guid("ecd7c5c2-c68e-4ddd-a7ea-fcd3385bd80c")]
+[assembly: Guid("0e0f031d-fea0-4ebd-95dd-6347730492c6")]
