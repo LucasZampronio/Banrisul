@@ -1,5 +1,6 @@
 ﻿using Bergs.Pwx.Pwxodaxn;
 using Bergs.Pwx.Pwxoiexn;
+using Bergs.Pwx.Pwxoiexn.Validacoes;
 using System;
 using System.Data;
 using System.Xml.Serialization;
@@ -11,6 +12,11 @@ namespace Bergs.Pxc.Pxcbtoxn
     /// </summary>
     public class TOIdioma: TOTabela
     {
+        /// <summary>
+        /// Constante com o nome da tabela IDIOMA
+        /// </summary>
+        public const string TABELA = "PXC.IDIOMA";
+
         /// <summary>
         /// Constante com o nome do campo COD_IDIOMA na tabela IDIOMA
         /// </summary>
@@ -44,6 +50,7 @@ namespace Bergs.Pxc.Pxcbtoxn
         /// <summary>
         /// Campo DESC_IDIOMA da tabela IDIOMA
         /// </summary>
+        [Alfanumerico]
         [XmlAttribute("desc_idioma")]
         [CampoTabela(DESCRICAO_IDIOMA, Obrigatorio = true, TipoParametro = DbType.String, Tamanho = 50, Precisao = 50)]
         public CampoObrigatorio<string> DescIdioma { get; set; }
@@ -65,7 +72,7 @@ namespace Bergs.Pxc.Pxcbtoxn
         /// <summary>
         /// Popula os atributos da classe a partir de uma linha de dados
         /// </summary>
-        /// <param name="linha">Linha de dados retornada pelo acesso à base de dados</param>
+        /// <param name="linha">Registro de dados retornado pelo acesso à base de dados</param>
         public override void PopularRetorno(Linha linha)
         {
             // Percorre os campos que foram retornados pela consulta e converte seus valores para tipos do .NET

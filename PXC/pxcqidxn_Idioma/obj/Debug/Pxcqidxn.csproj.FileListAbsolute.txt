@@ -1,0 +1,8 @@
+C:\Soft\Pxc\bin\Pxcqidxn.xml
+C:\Soft\Pxc\bin\Pxcqidxn.dll
+C:\Soft\Pxc\bin\Pxcqidxn.pdb
+C:\Desenvhome\PXC\pxcqidxn_Idioma\obj\Debug\Pxcqidxn.csprojAssemblyReference.cache
+C:\Desenvhome\PXC\pxcqidxn_Idioma\obj\Debug\Pxcqidxn.csproj.CoreCompileInputs.cache
+C:\Desenvhome\PXC\pxcqidxn_Idioma\obj\Debug\Pxcqidxn.dll
+C:\Desenvhome\PXC\pxcqidxn_Idioma\obj\Debug\Pxcqidxn.pdb
+C:\desenvhome\PXC\pxcqidxn_Idioma\obj\Debug\Pxcqidxn.csproj.CopyComplete

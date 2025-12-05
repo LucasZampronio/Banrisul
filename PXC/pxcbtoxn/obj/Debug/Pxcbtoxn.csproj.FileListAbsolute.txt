@@ -1,0 +1,7 @@
+C:\Soft\Pxc\bin\Pxcbtoxn.xml
+C:\Soft\Pxc\bin\Pxcbtoxn.dll
+C:\Soft\Pxc\bin\Pxcbtoxn.pdb
+C:\Desenvhome\PXC\pxcbtoxn\obj\Debug\Pxcbtoxn.csprojAssemblyReference.cache
+C:\Desenvhome\PXC\pxcbtoxn\obj\Debug\Pxcbtoxn.csproj.CoreCompileInputs.cache
+C:\Desenvhome\PXC\pxcbtoxn\obj\Debug\Pxcbtoxn.dll
+C:\Desenvhome\PXC\pxcbtoxn\obj\Debug\Pxcbtoxn.pdb

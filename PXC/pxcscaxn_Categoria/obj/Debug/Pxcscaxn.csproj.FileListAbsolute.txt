@@ -1,0 +1,8 @@
+C:\Desenvhome\PXC\pxcscaxn_Categoria\obj\Debug\Pxcscaxn.csprojAssemblyReference.cache
+C:\Desenvhome\PXC\pxcscaxn_Categoria\obj\Debug\Pxcscaxn.csproj.CoreCompileInputs.cache
+C:\Soft\Pxc\bin\Pxcscaxn.xml
+C:\Soft\Pxc\bin\Pxcscaxn.dll
+C:\Soft\Pxc\bin\Pxcscaxn.pdb
+C:\Desenvhome\PXC\pxcscaxn_Categoria\obj\Debug\Pxcscaxn.csproj.CopyComplete
+C:\Desenvhome\PXC\pxcscaxn_Categoria\obj\Debug\Pxcscaxn.dll
+C:\Desenvhome\PXC\pxcscaxn_Categoria\obj\Debug\Pxcscaxn.pdb

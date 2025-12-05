@@ -1,410 +1,395 @@
-﻿using Bergs.Pxc.Pxcbtoxn;
-using Bergs.Pwx.Pwxodaxn;
+﻿using Bergs.Pwx.Pwxodaxn;
 using Bergs.Pwx.Pwxodaxn.Excecoes;
 using Bergs.Pwx.Pwxoiexn;
 using Bergs.Pwx.Pwxoiexn.BD;
 using Bergs.Pwx.Pwxoiexn.Mensagens;
+using Bergs.Pxc.Pxcbtoxn;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
-using System.Text;
 
 namespace Bergs.Pxc.Pxcqidxn
 {
-    /// <summary>Classe que possui os métodos de manipulação de dados da tabela IDIOMA da base de dados PXC.</summary>
-    public class Idioma : AplicacaoDados
+    /// <summary>
+    /// Classe que possui os métodos de manipulação de dados da tabela IDIOMA da base de dados PXC
+    /// </summary>
+    public class Idioma: AplicacaoDados
     {
-        #region Métodos
-        /// <summary>Método alterar referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+        private static readonly string Alias = string.Empty;
+
+        /// <summary>
+        /// Método alterar referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Alterar(TOIdioma toIdioma)
         {
             try
             {
-                int registrosAfetados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear();
-                
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("UPDATE PXC.IDIOMA");
-                //Monta campos que serão modificados
-                this.MontarSet(toIdioma);
-                //Filtra a alteração pelas chaves da tabela
-                this.MontarWhereChaves(toIdioma, String.Empty);
-                //Filtra a alteração pelo campo de controle de acessos concorrentes
-                this.Sql.MontarCampoWhere("DTHR_ULT_ATU", toIdioma.DthrUltAtu);
+                ResetarControlesComando();
 
-                //Executa o comando
-                registrosAfetados = this.AlterarDados();
+                Sql.Comando.Append($"UPDATE {TOIdioma.TABELA}");
+
+                Sql.MontarCampoSet(TOIdioma.DESCRICAO_IDIOMA, toIdioma.DescIdioma);
+                Sql.MontarCampoSet(TOIdioma.CODIGO_USUARIO, toIdioma.CodUsuario);
+
+                Sql.MontarCampoSet(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO); // SAC - Refresh para um novo token
+                Sql.Comando.Append(BDUtils.BD_CURRENT_TIMESTAMP);
+
+                Sql.MontarCampoWhere(TOIdioma.CODIGO_IDIOMA, toIdioma.CodIdioma);
+
+                Sql.MontarCampoWhere(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO, toIdioma.DthrUltAtu); // SAC - Uso do token atual
+
+                var registrosAfetados = AlterarDados();
+
                 if (registrosAfetados == 0)
-                {
-                    return this.Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
-                }
+                    return Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
 
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (ChaveEstrangeiraInexistenteException ex)
+            catch (ChaveEstrangeiraInexistenteException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-     
-        /// <summary>Método contar referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método contar referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<long> Contar(TOIdioma toIdioma)
         {
             try
             {
-                long quantidadeRegistros;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear();
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("SELECT COUNT(*) FROM PXC.IDIOMA");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhere(toIdioma, String.Empty);
+                Sql.Comando.Append($"SELECT COUNT(*) FROM {QualificarTabela(TOIdioma.TABELA)}");
 
-                //Executa o comando
-                quantidadeRegistros = this.ContarDados();
+                /*
+                 * Só vão ser agregados ao comando os campos abaixo do TO que estiverem em estados
+                 * SETADO COM CONTEÚDO ou SETADO SEM CONTEÚDO
+                 * - Lembrando dos estados possíveis: SETADO COM CONTEÚDO, NÃO SETADO e 
+                 * SETADO SEM CONTEÚDO (exclusivo para campos CampoOpcional<T>)
+                */
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.CODIGO_IDIOMA), toIdioma.CodIdioma);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.DESCRICAO_IDIOMA), toIdioma.DescIdioma);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.CODIGO_USUARIO), toIdioma.CodUsuario);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO), toIdioma.DthrUltAtu);
 
-                return this.Infra.RetornarSucesso(quantidadeRegistros);
+                var quantidadeRegistros = ContarDados();
+
+                return Infra.RetornarSucesso(quantidadeRegistros);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<long>(ex);
+                return Infra.TratarExcecao<long>(exception);
             }
         }
-      
-        /// <summary>Método excluir referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método excluir referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Excluir(TOIdioma toIdioma)
         {
             try
             {
-                int registrosAfetados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear();
-                
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("DELETE FROM PXC.IDIOMA");
-                //Filtra a exclusão pelas chaves da tabela
-                this.MontarWhereChaves(toIdioma, String.Empty);
-                //Filtra a exclusão pelo campo de controle de acessos concorrentes
-                this.Sql.MontarCampoWhere("DTHR_ULT_ATU", toIdioma.DthrUltAtu);
-          
-                //Executa o comando
-                registrosAfetados = this.ExcluirDados();
+                ResetarControlesComando();
+
+                Sql.Comando.Append($"DELETE FROM {TOIdioma.TABELA}");
+
+                Sql.MontarCampoWhere(TOIdioma.CODIGO_IDIOMA, toIdioma.CodIdioma);
+
+                Sql.MontarCampoWhere(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO, toIdioma.DthrUltAtu); // SAC - Uso do token atual
+
+                var registrosAfetados = ExcluirDados();
+
                 if (registrosAfetados == 0)
-                {
-                    return this.Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
-                }
-                
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                    return Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
+
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (ChaveEstrangeiraReferenciadaException ex)
+            catch (ChaveEstrangeiraReferenciadaException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraReferenciadaMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraReferenciadaMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-     
-        /// <summary>Método incluir referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método incluir referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Incluir(TOIdioma toIdioma)
         {
             try
-            { 
-                int registrosAfetados;                
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Sql.Temporario.Length = 0;
-                this.Parametros.Clear();
-                
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("INSERT INTO PXC.IDIOMA (");
-                //Monta campos que serão inseridos
-                this.MontarInsert(toIdioma);
-                 
-                //Une os buffers de montagem do comando
-                this.Sql.Comando.Append(") VALUES (");                
-                this.Sql.Comando.Append(this.Sql.Temporario.ToString());
-                
-                this.Sql.Comando.Append(")");
+            {
+                ResetarControlesComando();
 
-                //Executa o comando
-                registrosAfetados = this.IncluirDados();
+                Sql.Comando.Append($"INSERT INTO {TOIdioma.TABELA} (");
 
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                Sql.MontarCampoInsert(TOIdioma.CODIGO_IDIOMA, toIdioma.CodIdioma);
+                Sql.MontarCampoInsert(TOIdioma.DESCRICAO_IDIOMA, toIdioma.DescIdioma);
+                Sql.MontarCampoInsert(TOIdioma.CODIGO_USUARIO, toIdioma.CodUsuario);
+
+                Sql.MontarCampoInsert(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO); // SAC - Inicialização do token
+                Sql.Comando.Append(BDUtils.BD_CURRENT_TIMESTAMP);
+
+                Sql.Comando.Append(") VALUES (");
+                Sql.Comando.Append(Sql.Temporario);
+                Sql.Comando.Append(")");
+
+                var registrosAfetados = IncluirDados();
+
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (RegistroDuplicadoException ex)
+            catch (RegistroDuplicadoException exception)
             {
-                return this.Infra.RetornarFalha<int>(new RegistroDuplicadoMensagem(ex));
+                return Infra.RetornarFalha<int>(new RegistroDuplicadoMensagem(exception));
             }
-			catch (ChaveEstrangeiraInexistenteException ex)
+            catch (ChaveEstrangeiraInexistenteException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-    
-        /// <summary>Método listar referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <param name="toPaginacao">Classe da infra-estrutura contendo as informações de paginação.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método listar referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <param name="toPaginacao">Classe da infra-estrutura contendo as informações de paginação</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<List<TOIdioma>> Listar(TOIdioma toIdioma, TOPaginacao toPaginacao)
         {
             try
             {
-                List<TOIdioma> dados;
-                TOIdioma toRetorno;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear(); 
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("SELECT ");
-                this.Sql.Comando.Append("IDI.COD_IDIOMA, ");
-                this.Sql.Comando.Append("IDI.COD_USUARIO, ");
-                this.Sql.Comando.Append("IDI.DESC_IDIOMA, ");
-                this.Sql.Comando.Append("IDI.DTHR_ULT_ATU ");
-                this.Sql.Comando.Append("FROM PXC.IDIOMA IDI");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhere(toIdioma, "IDI.");
+                Sql.Comando.Append($"SELECT * FROM {QualificarTabela(TOIdioma.TABELA)}");
 
-                dados = new List<TOIdioma>();
+                /*
+                 * Só vão ser agregados ao comando os campos abaixo do TO que estiverem em estados
+                 * SETADO COM CONTEÚDO ou SETADO SEM CONTEÚDO
+                 * - Lembrando dos estados possíveis: SETADO COM CONTEÚDO, NÃO SETADO e 
+                 * SETADO SEM CONTEÚDO (exclusivo para campos CampoOpcional<T>)
+                */
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.CODIGO_IDIOMA), toIdioma.CodIdioma);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.DESCRICAO_IDIOMA), toIdioma.DescIdioma);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.CODIGO_USUARIO), toIdioma.CodUsuario);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.DATA_HORA_ULTIMA_ALTERACAO), toIdioma.DthrUltAtu);
 
-                if (toPaginacao == null)
-                {
-                    //Executa o comando sem utilizar paginação
-                    using (ListaConectada listaConectada = this.ListarDados())
-                    {
-                        //Cria TO para cada tupla retornada
-                        while (listaConectada.Ler())
-                        {
-                            toRetorno = new TOIdioma();
-                            toRetorno.PopularRetorno(listaConectada.LinhaAtual);
-                            dados.Add(toRetorno);
-                        }
-                    }
-                }
-                else
-                {
-                    //Executa o comando utilizando paginação
-                    ListaDesconectada listaDesconectada = this.ListarDados(toPaginacao);
+                var listaTOs = toPaginacao != null
+                    ? ListarPaginaTOsIdioma(toPaginacao)
+                    : ListarTodosTOsIdioma();
 
-                    //Cria TO para cada tupla retornada
-                    foreach (Linha linha in listaDesconectada.Linhas)
-                    {
-                        toRetorno = new TOIdioma();
-                        toRetorno.PopularRetorno(linha);
-                        dados.Add(toRetorno);
-                    }
-                }
-
-                return this.Infra.RetornarSucesso(dados);
-            }    
-            catch (Exception ex)
+                return Infra.RetornarSucesso(listaTOs);
+            }
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<List<TOIdioma>>(ex);
+                return Infra.TratarExcecao<List<TOIdioma>>(exception);
             }
         }
-    
-        /// <summary>Método obter referente à tabela IDIOMA.</summary>
-        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método obter referente à tabela IDIOMA
+        /// </summary>
+        /// <param name="toIdioma">Transfer Object de entrada referente à tabela IDIOMA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<TOIdioma> Obter(TOIdioma toIdioma)
         {
             try
             {
-                Linha linha;
-                TOIdioma dados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear(); 
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("SELECT ");
-                this.Sql.Comando.Append("IDI.COD_IDIOMA, ");
-                this.Sql.Comando.Append("IDI.COD_USUARIO, ");
-                this.Sql.Comando.Append("IDI.DESC_IDIOMA, ");
-                this.Sql.Comando.Append("IDI.DTHR_ULT_ATU ");
-                this.Sql.Comando.Append("FROM PXC.IDIOMA IDI");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhereChaves(toIdioma, "IDI.");
+                Sql.Comando.Append($"SELECT * FROM {QualificarTabela(TOIdioma.TABELA)}");
 
-                //Executa o comando
-                linha = this.ObterDados();
-                if (linha == null)
-                {
-                    return this.Infra.RetornarFalha<TOIdioma>(new RegistroInexistenteMensagem());
-                }
-                
-                //Cria TO para a tupla retornada
-                dados = new TOIdioma();
-                dados.PopularRetorno(linha);
+                Sql.MontarCampoWhere(QualificarCampo(TOIdioma.CODIGO_IDIOMA), toIdioma.CodIdioma);
 
-                return this.Infra.RetornarSucesso(dados);
+                var registro = ObterDados();
+
+                if (registro == null)
+                    return Infra.RetornarFalha<TOIdioma>(new RegistroInexistenteMensagem());
+
+                var toIdiomaConsultado = GerarTOIdioma(registro);
+
+                return Infra.RetornarSucesso(toIdiomaConsultado);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<TOIdioma>(ex);
+                return Infra.TratarExcecao<TOIdioma>(exception);
             }
         }
-    
-        /// <summary>Monta campos para cláusula WHERE.</summary>
-        /// <param name="toIdioma">TO contendo os campos.</param>
-        /// <param name="alias">Alias da tabela Idioma.</param>
-        private void MontarWhere(TOIdioma toIdioma, String alias)
-        {
-            //Monta no WHERE todos os campos da tabela que foram informados
-            
-            this.MontarWhereChaves(toIdioma, alias);
-            this.MontarCampos(this.Sql.MontarCampoWhere, toIdioma, alias);
-            
-			this.Sql.MontarCampoWhere(alias + "DTHR_ULT_ATU", toIdioma.DthrUltAtu);
-        }
-        
-        /// <summary>Monta campos chave para cláusula WHERE.</summary>
-        /// <param name="toIdioma">TO contendo os campos.</param>
-        /// <param name="alias">Alias da tabela Idioma.</param>
-        private void MontarWhereChaves(TOIdioma toIdioma, String alias)
-        {
-            //Monta no WHERE todos os campos chave da tabela
-            
-            this.MontarCamposChave(this.Sql.MontarCampoWhere, toIdioma, alias);
-        }
-        
-        /// <summary>Monta campos para cláusula SET.</summary>
-        /// <param name="toIdioma">TO contendo os campos.</param>
-        private void MontarSet(TOIdioma toIdioma)
-        {
-            //Monta no SET todos os campos não chave da tabela que foram informados
-            
-            this.MontarCampos(this.Sql.MontarCampoSet, toIdioma, String.Empty);
-            this.Sql.MontarCampoSet("DTHR_ULT_ATU");
-            this.Sql.Comando.Append("CURRENT_TIMESTAMP");
-        }
-        
-        /// <summary>Monta campos para cláusula INSERT.</summary>
-        /// <param name="toIdioma">TO contendo os campos.</param>
-        private void MontarInsert(TOIdioma toIdioma)
-        {
-            //Monta no INSERT todos os campos da tabela que foram informados
-            
-            this.MontarCamposChave(this.Sql.MontarCampoInsert, toIdioma, String.Empty);
-            this.MontarCampos(this.Sql.MontarCampoInsert, toIdioma, String.Empty);
-            this.Sql.MontarCampoInsert("DTHR_ULT_ATU");
-            this.Sql.Temporario.Append("CURRENT_TIMESTAMP");
-        }
-        
-        /// <summary>Executa uma ação nos campos chave de um TO.</summary>
-        /// <param name="montagem">Ação a ser executada.</param>
-        /// <param name="toIdioma">TO alvo das ações.</param>
-        /// <param name="alias">Alias da tabela Idioma.</param>
-        private void MontarCamposChave(ConstrutorSql.MontarCampo montagem, TOIdioma toIdioma, String alias)
-        {   
-            //Invoca qualquer comando simples de montagem nos campos chave da tabela
-            
-            montagem.Invoke(alias + "COD_IDIOMA", toIdioma.CodIdioma);
-        }
-        
-        /// <summary>Executa uma ação nos campos não chave de um TO.</summary>
-        /// <param name="montagem">Ação a ser executada.</param>
-        /// <param name="toIdioma">TO alvo das ações.</param>
-        /// <param name="alias">Alias da tabela Idioma.</param>
-        private void MontarCampos(ConstrutorSql.MontarCampo montagem, TOIdioma toIdioma, String alias)
-        {   
-            //Invoca qualquer comando simples de montagem nos campos não chave da tabela, exceto no que faz controle de acessos concorrentes
-            
-            montagem.Invoke(alias + "COD_USUARIO", toIdioma.CodUsuario);
-            montagem.Invoke(alias + "DESC_IDIOMA", toIdioma.DescIdioma);
-        }
 
-        /// <summary>Cria um parâmetro para a instrução SQL.</summary>
-        /// <param name="nomeCampo">Nome do campo da tabela.</param>
-        /// <param name="conteudo">Valor para o parâmetro.</param>
-        /// <returns>Parâmetro recém-criado.</returns>
-        protected override Parametro CriarParametro(String nomeCampo, Object conteudo)
+        /// <summary>
+        /// Método responsável por definir a relação entre o campo do TO e o parâmetro SQL correspondente
+        /// </summary>
+        /// <param name="nomeCampo">Nome do campo a ser parametrizado</param>
+        /// <param name="conteudo">Conteúdo na propriedade do TO respectiva ao campo a ser parametrizado</param>
+        /// <returns>Parâmetro recém-criado</returns>
+        protected override Parametro CriarParametro(string nomeCampo, object conteudo)
         {
-            Parametro parametro = new Parametro();
+            var parametro = new Parametro();
+
             switch (nomeCampo)
-            {   
-                #region Chaves Primárias
-                case "COD_IDIOMA":
-                    parametro.Precision = 4;
-                    parametro.Size = 4;
-                    parametro.DbType = DbType.Int32;
-                    break;                        
-                #endregion
+            {
+                case TOIdioma.CODIGO_IDIOMA:
+                    {
+                        parametro.DbType = DbType.Int32;
+                        parametro.Size = 8;
+                        parametro.Precision = 8;
 
-                #region Campos Obrigatórios
-                case "DESC_IDIOMA":
-                    parametro.Precision = 50;
-                    parametro.Size = 50;
-                    parametro.DbType = DbType.String;
-                    break;
-                #endregion
+                        break;
+                    }
+                case TOIdioma.DESCRICAO_IDIOMA:
+                    {
+                        parametro.DbType = DbType.String;
+                        parametro.Size = 50;
+                        parametro.Precision = 50;
 
-                #region Campos Opcionais
-                case "COD_USUARIO":
-                    parametro.Precision = 6;
-                    parametro.Size = 6;
-                    parametro.DbType = DbType.String;
-                    break;
-                case "DTHR_ULT_ATU":
-                    parametro.Precision = 10;
-                    parametro.Scale = 6;
-                    parametro.Size = 10;
-                    parametro.DbType = DbType.DateTime;
-                    break;
+                        break;
+                    }
+                case TOIdioma.CODIGO_USUARIO:
+                    {
+                        parametro.DbType = DbType.String;
+                        parametro.Size = 6;
+                        parametro.Precision = 6;
 
-#if DEBUG
+                        break;
+                    }
+                case TOIdioma.DATA_HORA_ULTIMA_ALTERACAO:
+                    {
+                        parametro.DbType = DbType.DateTime;
+                        parametro.Size = 10;
+                        parametro.Precision = 10;
+                        parametro.Scale = 6;
+
+                        break;
+                    }
                 default:
-                    //Força um erro em modo debug para alertar o programador caso tenha caido no default
-                    //Todo parâmetro deve cair em um case neste switch
-                    parametro = null;
-                    break;
+                    {
+#if DEBUG // Diretiva de compilação condicional - Só vai constar na aplicação quando rodando em modo debug
+                        parametro = null; // Força um erro para alertar o desenvolvedor, pois todo parâmetro deve ser tratado no switch
 #endif
-                #endregion                
+                        break;
+                    }
+
             }
+
             parametro.Direction = ParameterDirection.Input;
+
             parametro.SourceColumn = nomeCampo;
-            
-            if (parametro.Scale > 0 && conteudo != null &&  parametro.DbType != DbType.DateTime)
-            {
-                parametro.Value = String.Format(CultureInfo.InvariantCulture, "{0:F" + parametro.Scale + "}", conteudo);
-            }
+
+            if (BDUtils.IsParametroPontoFlutuante(parametro.DbType, parametro.Scale) && conteudo != null)
+                parametro.Value = BDUtils.FormatarParametroPontoFlutuante(conteudo, parametro.Scale);
             else
-            {
                 parametro.Value = conteudo;
-            }
-            
+
             return parametro;
         }
-        #endregion
+
+        /// <summary>
+        /// Auxiliar que reseta/limpa os controles utilizados para a montagem dos comandos (operação de segurança)
+        /// </summary>
+        private void ResetarControlesComando()
+        {
+            Sql.Comando.Clear();
+
+            Sql.Temporario.Clear();
+
+            Parametros.Clear();
+        }
+
+        /// <summary>
+        /// Auxiliar que controla a inserção ou não do alias SQL nos nomes de tabelas durante a montagem dos comandos
+        /// </summary>
+        /// <returns>Nome qualificado da tabela</returns>
+        private string QualificarTabela(string nomeTabela)
+        {
+            return !string.IsNullOrWhiteSpace(Alias)
+                ? $"{nomeTabela} {Alias}"
+                : nomeTabela;
+        }
+
+        /// <summary>
+        /// Auxiliar que controla a inserção ou não do alias SQL nos nomes de campo durante a montagem dos comandos
+        /// </summary>
+        /// <param name="nomeCampo">Nome do campo a ser qualificado</param>
+        /// <returns>Nome qualificado do campo</returns>
+        private string QualificarCampo(string nomeCampo)
+        {
+            return !string.IsNullOrWhiteSpace(Alias)
+                ? $"{Alias}.{nomeCampo}"
+                : nomeCampo;
+        }
+
+        /// <summary>
+        /// Auxiliar que faz a listagem completa de TOs
+        /// </summary>
+        /// <returns>Lista completa de TOs de idioma</returns>
+        private List<TOIdioma> ListarTodosTOsIdioma()
+        {
+            var listaCompletaTOs = new List<TOIdioma>();
+
+            using (var listaConectada = ListarDados())
+            {
+                while (listaConectada.Ler())
+                {
+                    var toRetorno = GerarTOIdioma(listaConectada.LinhaAtual);
+
+                    listaCompletaTOs.Add(toRetorno);
+                }
+            }
+
+            return listaCompletaTOs;
+        }
+
+        /// <summary>
+        /// Auxiliar que faz a listagem de TOs com base no objeto de paginação
+        /// </summary>
+        /// <param name="toPaginacao">Objeto com as configurações da página a ser listada</param>
+        /// <returns>Lista de TOs de idioma com base na página selecionada</returns>
+        private List<TOIdioma> ListarPaginaTOsIdioma(TOPaginacao toPaginacao)
+        {
+            var paginaTOs = new List<TOIdioma>();
+
+            var listaDesconectada = ListarDados(toPaginacao);
+
+            foreach (var linhaAtual in listaDesconectada.Linhas)
+            {
+                var toRetorno = GerarTOIdioma(linhaAtual);
+
+                paginaTOs.Add(toRetorno);
+            }
+
+            return paginaTOs;
+        }
+
+        /// <summary>
+        /// Auxiliar que efetua a criação de um novo TO de idiomas com base em um registro oriundo da base de dados
+        /// </summary>
+        /// <param name="registro"></param>
+        /// <returns>Instância de TOIdioma</returns>
+        private TOIdioma GerarTOIdioma(Linha registro)
+        {
+            var toIdioma = new TOIdioma();
+
+            toIdioma.PopularRetorno(registro);
+
+            return toIdioma;
+        }
     }
 }

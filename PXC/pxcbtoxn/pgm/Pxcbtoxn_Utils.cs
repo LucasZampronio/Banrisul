@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data;
+using System.Globalization;
 using System.Text;
 
 namespace Bergs.Pxc.Pxcbtoxn
@@ -94,6 +96,40 @@ namespace Bergs.Pxc.Pxcbtoxn
                 throw new ArgumentException($"Número {numero} inválido.");
 
             return (char)('A' + numero - 1);
+        }
+    }
+
+    /// <summary>
+    /// Utilitários para objetos BD da camada Q
+    /// </summary>
+    public static class BDUtils
+    {
+        /// <summary>
+        /// Constante contendo a cláusula a ser chamada quando se quer uma atribuição de data e hora atuais em um campo dentro do contexto da base de dados
+        /// </summary>
+        public const string BD_CURRENT_TIMESTAMP = "CURRENT_TIMESTAMP";
+
+        /// <summary>
+        /// Método para checar se uma propriedade tem configuração de parâmetros equivalentes a de um valor numérico com casas decimais
+        /// </summary>
+        /// <param name="tipo">Tipo de parâmetro</param>
+        /// <param name="casasDecimais">Número de casas decimais do parâmetro</param>
+        /// <returns></returns>
+        public static bool IsParametroPontoFlutuante(DbType tipo, byte casasDecimais)
+        {
+            if (tipo == DbType.DateTime)
+                return false;
+
+            return casasDecimais > 0;
+        }
+
+        /// <summary>
+        /// Método para converter propriedades numéricas com casas decimais para parâmetros compatíveis da base de dados
+        /// </summary>
+        /// <returns></returns>
+        public static string FormatarParametroPontoFlutuante(object conteudo, byte casasDecimais)
+        {
+            return string.Format(CultureInfo.InvariantCulture, $"{{0:F{casasDecimais}}}", conteudo);
         }
     }
 }

@@ -1,0 +1,7 @@
+C:\Desenvhome\PXC\pxcqcaxn_Categoria\obj\Debug\Pxcqcaxn.csprojAssemblyReference.cache
+C:\Desenvhome\PXC\pxcqcaxn_Categoria\obj\Debug\Pxcqcaxn.csproj.CoreCompileInputs.cache
+C:\Soft\Pxc\bin\Pxcqcaxn.xml
+C:\Soft\Pxc\bin\Pxcqcaxn.dll
+C:\Soft\Pxc\bin\Pxcqcaxn.pdb
+C:\Desenvhome\PXC\pxcqcaxn_Categoria\obj\Debug\Pxcqcaxn.dll
+C:\Desenvhome\PXC\pxcqcaxn_Categoria\obj\Debug\Pxcqcaxn.pdb

@@ -1,0 +1,8 @@
+c:\Soft\Pxc\bin\Pxcu01xn.Test.xml
+c:\Soft\Pxc\bin\Pxcu01xn.Test.dll
+c:\Soft\Pxc\bin\Pxcu01xn.Test.pdb
+C:\desenvhome\PXC\Pxcu01xn_TestesAutomatizados\obj\Debug\Pxcu01xn.csprojAssemblyReference.cache
+C:\desenvhome\PXC\Pxcu01xn_TestesAutomatizados\obj\Debug\Pxcu01xn.csproj.CoreCompileInputs.cache
+C:\desenvhome\PXC\Pxcu01xn_TestesAutomatizados\obj\Debug\Pxcu01xn.Test.dll
+C:\desenvhome\PXC\Pxcu01xn_TestesAutomatizados\obj\Debug\Pxcu01xn.Test.pdb
+C:\Desenvhome\PXC\Pxcu01xn_TestesAutomatizados\obj\Debug\Pxcu01xn.csproj.CopyComplete

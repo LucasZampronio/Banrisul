@@ -1,420 +1,433 @@
-﻿using Bergs.Pxc.Pxcbtoxn;
-using Bergs.Pwx.Pwxodaxn;
+﻿using Bergs.Pwx.Pwxodaxn;
 using Bergs.Pwx.Pwxodaxn.Excecoes;
 using Bergs.Pwx.Pwxoiexn;
 using Bergs.Pwx.Pwxoiexn.BD;
 using Bergs.Pwx.Pwxoiexn.Mensagens;
+using Bergs.Pxc.Pxcbtoxn;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
-using System.Text;
 
 namespace Bergs.Pxc.Pxcqcaxn
 {
-    /// <summary>Classe que possui os métodos de manipulação de dados da tabela CATEGORIA da base de dados PXC.</summary>
-    public class Categoria : AplicacaoDados
+    /// <summary>
+    /// Classe que possui os métodos de manipulação de dados da tabela CATEGORIA da base de dados PXC
+    /// </summary>
+    public class Categoria: AplicacaoDados
     {
-        private const string NOME_TABELA = "PXC_CATEGORIA";
+        private static readonly string Alias = string.Empty;
 
-        #region Métodos
-        /// <summary>Método alterar referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+        /// <summary>
+        /// Método alterar referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Alterar(TOCategoria toCategoria)
         {
             try
             {
-                int registrosAfetados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear();
-                toCategoria.CodOperador = Infra.Usuario.Matricula;
-                    
-                //Inicia montagem do comando
-                this.Sql.Comando.Append($"UPDATE {NOME_TABELA}");
-                //Monta campos que serão modificados
-                this.MontarSet(toCategoria);
-                //Filtra a alteração pelas chaves da tabela
-                this.MontarWhereChaves(toCategoria, String.Empty);
-                //Filtra a alteração pelo campo de controle de acessos concorrentes
-                this.Sql.MontarCampoWhere("ULT_ATUALIZACAO", toCategoria.UltAtualizacao);
+                ResetarControlesComando();
 
-                //Executa o comando
-                registrosAfetados = this.AlterarDados();
+                Sql.Comando.Append($"UPDATE {TOCategoria.TABELA}");
+
+                Sql.MontarCampoSet(TOCategoria.CODIGO_USUARIO, toCategoria.CodOperador);
+                Sql.MontarCampoSet(TOCategoria.DESCRICAO_CATEGORIA, toCategoria.Descricao);
+
+                Sql.MontarCampoSet(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO); // SAC - Refresh para um novo token
+                Sql.Comando.Append(BDUtils.BD_CURRENT_TIMESTAMP);
+
+                Sql.MontarCampoWhere(TOCategoria.CODIGO_CATEGORIA, toCategoria.CodCategoria);
+
+                Sql.MontarCampoWhere(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO, toCategoria.UltAtualizacao); // SAC - Uso do token atual
+
+                var registrosAfetados = AlterarDados();
+
                 if (registrosAfetados == 0)
-                {
-                    return this.Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
-                }
+                    return Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
 
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (ChaveEstrangeiraInexistenteException ex)
+            catch (ChaveEstrangeiraInexistenteException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-     
-        /// <summary>Método contar referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método contar referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<long> Contar(TOCategoria toCategoria)
         {
             try
             {
-                long quantidadeRegistros;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.Sql.Comando.Length = 0;
-                this.Parametros.Clear();
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append($"SELECT COUNT(*) FROM {NOME_TABELA}");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhere(toCategoria, String.Empty);
+                Sql.Comando.Append($"SELECT COUNT(*) FROM {QualificarTabela(TOCategoria.TABELA)}");
 
-                //Executa o comando
-                quantidadeRegistros = this.ContarDados();
+                /*
+                 * Só vão ser agregados ao comando os campos abaixo do TO que estiverem em estados
+                 * SETADO COM CONTEÚDO ou SETADO SEM CONTEÚDO
+                 * - Lembrando dos estados possíveis: SETADO COM CONTEÚDO, NÃO SETADO e 
+                 * SETADO SEM CONTEÚDO (exclusivo para campos CampoOpcional<T>)
+                */
+                Sql.MontarCampoWhere(QualificarCampo(TOCategoria.CODIGO_CATEGORIA) , toCategoria.CodCategoria);
+                Sql.MontarCampoWhere(QualificarCampo(TOCategoria.DESCRICAO_CATEGORIA) ,toCategoria.Descricao);
+                Sql.MontarCampoWhere(QualificarCampo(TOCategoria.CODIGO_USUARIO) , toCategoria.CodOperador);
+                Sql.MontarCampoWhere(QualificarCampo(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO) , toCategoria.UltAtualizacao);
 
-                return this.Infra.RetornarSucesso(quantidadeRegistros);
+                var quantidadeRegistros = ContarDados();
+
+                return Infra.RetornarSucesso(quantidadeRegistros);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<long>(ex);
+                return Infra.TratarExcecao<long>(exception);
             }
         }
-      
-        /// <summary>Método excluir referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método excluir referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Excluir(TOCategoria toCategoria)
         {
             try
             {
-                int registrosAfetados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.ResetarAtributosDeControle();
-                toCategoria.CodOperador = Infra.Usuario.Matricula;
-                    
-                //Inicia montagem do comando
-                this.Sql.Comando.Append($"DELETE FROM {NOME_TABELA}");
-                //Filtra a exclusão pelas chaves da tabela
-                this.MontarWhereChaves(toCategoria, String.Empty);
-                //Filtra a exclusão pelo campo de controle de acessos concorrentes
-                this.Sql.MontarCampoWhere("ULT_ATUALIZACAO", toCategoria.UltAtualizacao);
-          
-                //Executa o comando
-                registrosAfetados = this.ExcluirDados();
+                ResetarControlesComando();
+
+                Sql.Comando.Append($"DELETE FROM {TOCategoria.TABELA}");
+
+                Sql.MontarCampoWhere(TOCategoria.CODIGO_CATEGORIA, toCategoria.CodCategoria);
+
+                Sql.MontarCampoWhere(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO, toCategoria.UltAtualizacao); // SAC - Uso do token atual
+
+                var registrosAfetados = ExcluirDados();
+
                 if (registrosAfetados == 0)
-                {
-                    return this.Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
-                }
-                
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                    return Infra.RetornarFalha<int>(new ConcorrenciaMensagem());
+
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (ChaveEstrangeiraReferenciadaException ex)
+            catch (ChaveEstrangeiraReferenciadaException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraReferenciadaMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraReferenciadaMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-     
-        /// <summary>Método incluir referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método incluir referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<int> Incluir(TOCategoria toCategoria)
         {
             try
-            { 
-                int registrosAfetados;                
+            {
+                ResetarControlesComando();
+
+                Sql.Comando.Append($"INSERT INTO {TOCategoria.TABELA} (");
+
+                Sql.MontarCampoInsert(TOCategoria.CODIGO_CATEGORIA, toCategoria.CodCategoria);
+                Sql.MontarCampoInsert(TOCategoria.DESCRICAO_CATEGORIA, toCategoria.Descricao);
+                Sql.MontarCampoInsert(TOCategoria.CODIGO_USUARIO, toCategoria.CodOperador);
                 
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.ResetarAtributosDeControle();
-                toCategoria.CodOperador = Infra.Usuario.Matricula; 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append($"INSERT INTO {NOME_TABELA} (");
+                Sql.MontarCampoInsert(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO); // SAC - Inicialização do token
+                Sql.Temporario.Append(BDUtils.BD_CURRENT_TIMESTAMP);
 
-                this.Sql.MontarCampoInsert("COD_CATEGORIA",toCategoria.CodCategoria);
-                //Monta campos que serão inseridos
-                this.MontarInsert(toCategoria);
-                 
-                //Une os buffers de montagem do comando
-                this.Sql.Comando.Append(") VALUES (");                
-                this.Sql.Comando.Append(this.Sql.Temporario.ToString());
-                
-                this.Sql.Comando.Append(")");
+                Sql.Comando.Append(") VALUES (");
+                Sql.Comando.Append(Sql.Temporario);
+                Sql.Comando.Append(")");
 
-                //Executa o comando
-                registrosAfetados = this.IncluirDados();
+                var registrosAfetados = IncluirDados();
 
-                return this.Infra.RetornarSucesso(registrosAfetados);
+                return Infra.RetornarSucesso(registrosAfetados);
             }
-			catch (RegistroDuplicadoException ex)
+            catch (RegistroDuplicadoException exception)
             {
-                return this.Infra.RetornarFalha<int>(new RegistroDuplicadoMensagem(ex));
+                return Infra.RetornarFalha<int>(new RegistroDuplicadoMensagem(exception));
             }
-			catch (ChaveEstrangeiraInexistenteException ex)
+            catch (ChaveEstrangeiraInexistenteException exception)
             {
-                return this.Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(ex));
+                return Infra.RetornarFalha<int>(new ChaveEstrangeiraInexistenteMensagem(exception));
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<int>(ex);
+                return Infra.TratarExcecao<int>(exception);
             }
         }
-    
-        /// <summary>Método listar referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <param name="toPaginacao">Classe da infra-estrutura contendo as informações de paginação.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
+
+        /// <summary>
+        /// Método listar referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <param name="toPaginacao">Classe da infra-estrutura contendo as informações de paginação</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
         public virtual Retorno<List<TOCategoria>> Listar(TOCategoria toCategoria, TOPaginacao toPaginacao)
         {
             try
             {
-                List<TOCategoria> dados;
-                TOCategoria toRetorno;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.ResetarAtributosDeControle();
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("SELECT ");
-                this.Sql.Comando.Append("CAT.COD_CATEGORIA, ");
-                this.Sql.Comando.Append("CAT.COD_OPERADOR, ");
-                this.Sql.Comando.Append("CAT.DESCRICAO, ");
-                this.Sql.Comando.Append("CAT.ULT_ATUALIZACAO ");
-                this.Sql.Comando.Append($"FROM {NOME_TABELA} CAT");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhere(toCategoria, "CAT.");
+                this.Sql.Comando.Append($"SELECT ");
+                this.Sql.Comando.Append($"{TOCategoria.CODIGO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DESCRICAO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DATA_HORA_ULTIMA_ALTERACAO}");
+                this.Sql.Comando.Append($" FROM {TOCategoria.TABELA}");
 
-                dados = new List<TOCategoria>();
+                /*
+                 * Só vão ser agregados ao comando os campos abaixo do TO que estiverem em estados
+                 * SETADO COM CONTEÚDO ou SETADO SEM CONTEÚDO
+                 * - Lembrando dos estados possíveis: SETADO COM CONTEÚDO, NÃO SETADO e 
+                 * SETADO SEM CONTEÚDO (exclusivo para campos CampoOpcional<T>)
+                */
+                this.Sql.MontarCampoWhere(TOCategoria.CODIGO_CATEGORIA, toCategoria.CodCategoria);
+                this.Sql.MontarCampoWhere(TOCategoria.DESCRICAO_CATEGORIA, toCategoria.Descricao);
+                this.Sql.MontarCampoWhere(TOCategoria.DATA_HORA_ULTIMA_ALTERACAO, toCategoria.UltAtualizacao);
 
-                if (toPaginacao == null)
-                {
-                    //Executa o comando sem utilizar paginação
-                    using (ListaConectada listaConectada = this.ListarDados())
-                    {
-                        //Cria TO para cada tupla retornada
-                        while (listaConectada.Ler())
-                        {
-                            toRetorno = new TOCategoria();
-                            toRetorno.PopularRetorno(listaConectada.LinhaAtual);
-                            dados.Add(toRetorno);
-                        }
-                    }
-                }
-                else
-                {
-                    //Executa o comando utilizando paginação
-                    ListaDesconectada listaDesconectada = this.ListarDados(toPaginacao);
+                var listaTOs = toPaginacao != null
+                    ? ListarPaginaTOsCategoria(toPaginacao)
+                    : ListarTodosTOsCategoria();
 
-                    //Cria TO para cada tupla retornada
-                    foreach (Linha linha in listaDesconectada.Linhas)
-                    {
-                        toRetorno = new TOCategoria();
-                        toRetorno.PopularRetorno(linha);
-                        dados.Add(toRetorno);
-                    }
-                }
-
-                return this.Infra.RetornarSucesso(dados);
-            }    
-            catch (Exception ex)
+                return Infra.RetornarSucesso(listaTOs);
+            }
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<List<TOCategoria>>(ex);
+                return Infra.TratarExcecao<List<TOCategoria>>(exception);
             }
         }
-    
-        /// <summary>Método obter referente à tabela CATEGORIA.</summary>
-        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA.</param>
-        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro.</returns>
-        public virtual Retorno<TOCategoria> Obter(TOCategoria toCategoria)
+
+        /// <summary>
+        /// Método obter referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
+        public virtual Retorno<TOCategoria> ObterPorID(TOCategoria toCategoria)
         {
             try
             {
-                Linha linha;
-                TOCategoria dados;
-                
-                //Limpa as propriedades utilizadas para a montagem do comando
-                this.ResetarAtributosDeControle();
+                ResetarControlesComando();
 
-                //Inicia montagem do comando
-                this.Sql.Comando.Append("SELECT ");
-                this.Sql.Comando.Append("CAT.COD_CATEGORIA, ");
-                this.Sql.Comando.Append("CAT.COD_OPERADOR, ");
-                this.Sql.Comando.Append("CAT.DESCRICAO, ");
-                this.Sql.Comando.Append("CAT.ULT_ATUALIZACAO ");
-                this.Sql.Comando.Append($"FROM {NOME_TABELA} CAT");
-                //Filtra consulta pelos dados informados no TO
-                this.MontarWhereChaves(toCategoria, "CAT.");
+                this.Sql.Comando.Append($"SELECT ");
+                this.Sql.Comando.Append($"{TOCategoria.CODIGO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DESCRICAO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DATA_HORA_ULTIMA_ALTERACAO}");
+                this.Sql.Comando.Append($" FROM {TOCategoria.TABELA}");
+                this.Sql.MontarCampoWhere(TOCategoria.CODIGO_CATEGORIA, toCategoria.CodCategoria);
 
-                //Executa o comando
-                linha = this.ObterDados();
-                if (linha == null)
-                {
-                    return this.Infra.RetornarFalha<TOCategoria>(new RegistroInexistenteMensagem());
-                }
-                
-                //Cria TO para a tupla retornada
-                dados = new TOCategoria();
-                dados.PopularRetorno(linha);
+                var registro = ObterDados();
 
-                return this.Infra.RetornarSucesso(dados);
+                if (registro == null)
+                    return Infra.RetornarFalha<TOCategoria>(new RegistroInexistenteMensagem());
+
+                var toCategoriaConsultado = GerarTOCategoria(registro);
+
+                return Infra.RetornarSucesso(toCategoriaConsultado);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                return this.Infra.TratarExcecao<TOCategoria>(ex);
+                return Infra.TratarExcecao<TOCategoria>(exception);
             }
         }
 
-        /// <summary>Reseta os atributos de controle.</summary>
-        private void ResetarAtributosDeControle()
+        /// <summary>
+        /// Método obter referente à tabela CATEGORIA
+        /// </summary>
+        /// <param name="toCategoria">Transfer Object de entrada referente à tabela CATEGORIA</param>
+        /// <returns>Classe de retorno contendo as informações de resposta ou as informações de erro</returns>
+        public virtual Retorno<TOCategoria> ObterPorDescricao(TOCategoria toCategoria)
         {
-            this.Sql.Comando.Length = 0;
-            this.Parametros.Clear();
-            this.Sql.Temporario.Clear();
+            try
+            {
+                ResetarControlesComando();
+
+                this.Sql.Comando.Append($"SELECT ");
+                this.Sql.Comando.Append($"{TOCategoria.CODIGO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DESCRICAO_CATEGORIA},");
+                this.Sql.Comando.Append($"{TOCategoria.DATA_HORA_ULTIMA_ALTERACAO}");
+                this.Sql.Comando.Append($" FROM {TOCategoria.TABELA}");
+                this.Sql.MontarCampoWhere(TOCategoria.DESCRICAO_CATEGORIA, toCategoria.Descricao);
+
+                var registro = ObterDados();
+
+                if (registro == null)
+                    return Infra.RetornarFalha<TOCategoria>(new RegistroInexistenteMensagem());
+
+                var toCategoriaConsultado = GerarTOCategoria(registro);
+
+                return Infra.RetornarSucesso(toCategoriaConsultado);
+            }
+            catch (Exception exception)
+            {
+                return Infra.TratarExcecao<TOCategoria>(exception);
+            }
         }
 
-        /// <summary>Monta campos para cláusula WHERE.</summary>
-        /// <param name="toCategoria">TO contendo os campos.</param>
-        /// <param name="alias">Alias da tabela Categoria.</param>
-        /// 
-        private void MontarWhere(TOCategoria toCategoria, String alias)
-        {
-            //Monta no WHERE todos os campos da tabela que foram informados
-            
-            this.MontarWhereChaves(toCategoria, alias);
-            this.MontarCampos(this.Sql.MontarCampoWhere, toCategoria, alias);
-            
-			this.Sql.MontarCampoWhere(alias + "ULT_ATUALIZACAO", toCategoria.UltAtualizacao);
-        }
-        
-        /// <summary>Monta campos chave para cláusula WHERE.</summary>
-        /// <param name="toCategoria">TO contendo os campos.</param>
-        /// <param name="alias">Alias da tabela Categoria.</param>
-        private void MontarWhereChaves(TOCategoria toCategoria, String alias)
-        {
-            //Monta no WHERE todos os campos chave da tabela
-            
-            this.MontarCamposChave(this.Sql.MontarCampoWhere, toCategoria, alias);
-        }
-        
-        /// <summary>Monta campos para cláusula SET.</summary>
-        /// <param name="toCategoria">TO contendo os campos.</param>
-        private void MontarSet(TOCategoria toCategoria)
-        {
-            //Monta no SET todos os campos não chave da tabela que foram informados
-            
-            this.MontarCampos(this.Sql.MontarCampoSet, toCategoria, String.Empty);
-            this.Sql.MontarCampoSet("ULT_ATUALIZACAO");
-            this.Sql.Comando.Append("CURRENT_TIMESTAMP");
-        }
-        
-        /// <summary>Monta campos para cláusula INSERT.</summary>
-        /// <param name="toCategoria">TO contendo os campos.</param>
-        private void MontarInsert(TOCategoria toCategoria)
-        {
-            //Monta no INSERT todos os campos da tabela que foram informados
-            
-            this.MontarCamposChave(this.Sql.MontarCampoInsert, toCategoria, String.Empty);
-            this.MontarCampos(this.Sql.MontarCampoInsert, toCategoria, String.Empty);
-            this.Sql.MontarCampoInsert("ULT_ATUALIZACAO");
-            this.Sql.Temporario.Append("CURRENT_TIMESTAMP");
-        }
-        
-        /// <summary>Executa uma ação nos campos chave de um TO.</summary>
-        /// <param name="montagem">Ação a ser executada.</param>
-        /// <param name="toCategoria">TO alvo das ações.</param>
-        /// <param name="alias">Alias da tabela Categoria.</param>
-        private void MontarCamposChave(ConstrutorSql.MontarCampo montagem, TOCategoria toCategoria, String alias)
-        {   
-            //Invoca qualquer comando simples de montagem nos campos chave da tabela
-            
-            montagem.Invoke(alias + "COD_CATEGORIA", toCategoria.CodCategoria);
-        }
-        
-        /// <summary>Executa uma ação nos campos não chave de um TO.</summary>
-        /// <param name="montagem">Ação a ser executada.</param>
-        /// <param name="toCategoria">TO alvo das ações.</param>
-        /// <param name="alias">Alias da tabela Categoria.</param>
-        private void MontarCampos(ConstrutorSql.MontarCampo montagem, TOCategoria toCategoria, String alias)
-        {   
-            //Invoca qualquer comando simples de montagem nos campos não chave da tabela, exceto no que faz controle de acessos concorrentes
-            
-            montagem.Invoke(alias + "COD_OPERADOR", toCategoria.CodOperador);
-            montagem.Invoke(alias + "DESCRICAO", toCategoria.Descricao);
-        }
-
-        /// <summary>Cria um parâmetro para a instrução SQL.</summary>
-        /// <param name="nomeCampo">Nome do campo da tabela.</param>
-        /// <param name="conteudo">Valor para o parâmetro.</param>
-        /// <returns>Parâmetro recém-criado.</returns>
+        /// <summary>
+        /// Método responsável por definir a relação entre o campo do TO e o parâmetro SQL correspondente
+        /// </summary>
+        /// <param name="nomeCampo">Nome do campo a ser parametrizado</param>
+        /// <param name="conteudo">Conteúdo na propriedade do TO respectiva ao campo a ser parametrizado</param>
+        /// <returns>Parâmetro recém-criado</returns>
         protected override Parametro CriarParametro(String nomeCampo, Object conteudo)
         {
             Parametro parametro = new Parametro();
+
             switch (nomeCampo)
-            {   
-                #region Chaves Primárias
-                case "COD_CATEGORIA":
-                    parametro.Precision = 4;
-                    parametro.Size = 4;
-                    parametro.DbType = DbType.Int32;
-                    break;                        
-                #endregion
+            {
+                case TOCategoria.CODIGO_CATEGORIA:
+                    {
+                        parametro.DbType = DbType.Int32;
+                        parametro.Size = 8;
+                        parametro.Precision = 8;
 
-                #region Campos Obrigatórios
-                case "COD_OPERADOR":
-                    parametro.Precision = 6;
-                    parametro.Size = 6;
-                    parametro.DbType = DbType.String;
-                    break;
-                case "DESCRICAO":
-                    parametro.Precision = 35;
-                    parametro.Size = 35;
-                    parametro.DbType = DbType.String;
-                    break;
-                case "ULT_ATUALIZACAO":
-                    parametro.Precision = 10;
-                    parametro.Scale = 6;
-                    parametro.Size = 10;
-                    parametro.DbType = DbType.DateTime;
-                    break;
-                #endregion
+                        break;
+                    }
+                case TOCategoria.DESCRICAO_CATEGORIA:
+                    {
+                        parametro.DbType = DbType.String;
+                        parametro.Size = 35;
+                        parametro.Precision = 35;
 
-                #region Campos Opcionais
+                        break;
+                    }
+                case TOCategoria.CODIGO_USUARIO:
+                    {
+                        parametro.DbType = DbType.String;
+                        parametro.Size = 6;
+                        parametro.Precision = 6;
 
-#if DEBUG
+                        break;
+                    }
+                case TOCategoria.DATA_HORA_ULTIMA_ALTERACAO:
+                    {
+                        parametro.DbType = DbType.DateTime;
+                        parametro.Size = 10;
+                        parametro.Precision = 10;
+                        parametro.Scale = 6;
+
+                        break;
+                    }
                 default:
-                    //Força um erro em modo debug para alertar o programador caso tenha caido no default
-                    //Todo parâmetro deve cair em um case neste switch
-                    parametro = null;
-                    break;
+                    {
+#if DEBUG // Diretiva de compilação condicional - Só vai constar na aplicação quando rodando em modo debug
+                        parametro = null; // Força um erro para alertar o desenvolvedor, pois todo parâmetro deve ser tratado no switch
 #endif
-                #endregion                
+                        break;
+                    }
             }
+
             parametro.Direction = ParameterDirection.Input;
+
             parametro.SourceColumn = nomeCampo;
-            
-            if (parametro.Scale > 0 && conteudo != null &&  parametro.DbType != DbType.DateTime)
-            {
-                parametro.Value = String.Format(CultureInfo.InvariantCulture, "{0:F" + parametro.Scale + "}", conteudo);
-            }
+
+            if (BDUtils.IsParametroPontoFlutuante(parametro.DbType, parametro.Scale) && conteudo != null)
+                parametro.Value = BDUtils.FormatarParametroPontoFlutuante(conteudo, parametro.Scale);
             else
-            {
                 parametro.Value = conteudo;
-            }
-            
+
             return parametro;
         }
-        #endregion
+
+        /// <summary>
+        /// Auxiliar que reseta/limpa os controles utilizados para a montagem dos comandos (operação de segurança)
+        /// </summary>
+        private void ResetarControlesComando()
+        {
+            Sql.Comando.Clear();
+
+            Sql.Temporario.Clear();
+
+            Parametros.Clear();
+        }
+
+        /// <summary>
+        /// Auxiliar que controla a inserção ou não do alias SQL nos nomes de tabelas durante a montagem dos comandos
+        /// </summary>
+        /// <returns>Nome qualificado da tabela</returns>
+        private string QualificarTabela(string nomeTabela)
+        {
+            return !string.IsNullOrWhiteSpace(Alias)
+                ? $"{nomeTabela} {Alias}"
+                : nomeTabela;
+        }
+
+        /// <summary>
+        /// Auxiliar que controla a inserção ou não do alias SQL nos nomes de campo durante a montagem dos comandos
+        /// </summary>
+        /// <param name="nomeCampo">Nome do campo a ser qualificado</param>
+        /// <returns>Nome qualificado do campo</returns>
+        private string QualificarCampo(string nomeCampo)
+        {
+            return !string.IsNullOrWhiteSpace(Alias)
+                ? $"{Alias}.{nomeCampo}"
+                : nomeCampo;
+        }
+
+        /// <summary>
+        /// Auxiliar que faz a listagem completa de TOs
+        /// </summary>
+        /// <returns>Lista completa de TOs de categoria</returns>
+        private List<TOCategoria> ListarTodosTOsCategoria()
+        {
+            var listaCompletaTOs = new List<TOCategoria>();
+
+            using (var listaConectada = ListarDados())
+            {
+                while (listaConectada.Ler())
+                {
+                    var toRetorno = GerarTOCategoria(listaConectada.LinhaAtual);
+
+                    listaCompletaTOs.Add(toRetorno);
+                }
+            }
+
+            return listaCompletaTOs;
+        }
+
+        /// <summary>
+        /// Auxiliar que faz a listagem de TOs com base no objeto de paginação
+        /// </summary>
+        /// <param name="toPaginacao">Objeto com as configurações da página a ser listada</param>
+        /// <returns>Lista de TOs de categoria com base na página selecionada</returns>
+        private List<TOCategoria> ListarPaginaTOsCategoria(TOPaginacao toPaginacao)
+        {
+            var paginaTOs = new List<TOCategoria>();
+
+            var listaDesconectada = ListarDados(toPaginacao);
+
+            foreach (var linhaAtual in listaDesconectada.Linhas)
+            {
+                var toRetorno = GerarTOCategoria(linhaAtual);
+
+                paginaTOs.Add(toRetorno);
+            }
+
+            return paginaTOs;
+        }
+
+        /// <summary>
+        /// Auxiliar que efetua a criação de um novo TO de categorias com base em um registro oriundo da base de dados
+        /// </summary>
+        /// <param name="registro"></param>
+        /// <returns>Instância de TOCategoria</returns>
+        private TOCategoria GerarTOCategoria(Linha registro)
+        {
+            var toCategoria = new TOCategoria();
+
+            toCategoria.PopularRetorno(registro);
+
+            return toCategoria;
+        }
     }
 }
